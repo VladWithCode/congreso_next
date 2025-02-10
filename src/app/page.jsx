@@ -55,13 +55,10 @@ export default function Home() {
           alt="Imagen de leyenda"
         />
       </div>
-
-      {/* Rectángulo blanco para el copyright */}
-      <div className="bg-white w-full py-4 text-center mt-6">
-        <p className="text-gray-900 text-lg font-medium">
-          Copyright © H. Congreso del Estado de Durango
-        </p>
-      </div>
+      {/* Footer */}
+      <footer className="bg-white text-center py-2 shadow-inner text-gray-600 text-sm mt-14">
+        Copyright © H. Congreso del Estado de Durango
+      </footer>
     </div>
   );
 }

@@ -8,7 +8,7 @@ export default function Login() {
         <div className="max-w-screen-xl mx-auto flex items-center justify-between px-8 py-4">
           {/* Logo y Título */}
           <div className="flex items-center gap-4">
-            <Image src="/logo.png" alt="Logo" width={48} height={48} />
+            <Image src="/assets/logo.png" alt="Logo" width={48} height={48} />
             <h2 className="text-3xl font-bold text-gray-900">CONTROL DOCUMENTAL</h2>
           </div>
 
