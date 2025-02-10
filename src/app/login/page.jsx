@@ -1,6 +1,24 @@
-import Image from 'next/image';
+"use client"; // Marca este archivo como componente de cliente
+import { useState } from "react";
+import { useRouter } from "next/navigation"; // Para Next.js con el nuevo sistema de navegación
 
 export default function Login() {
+  const [usuario, setUsuario] = useState("");
+  const [password, setPassword] = useState("");
+  const router = useRouter(); // Hook de router para hacer la redirección
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    // Aquí deberías verificar las credenciales del usuario (por ejemplo, con una API)
+    if (usuario === "admin" && password === "password123") {
+      // Redirigimos al usuario a la página de inicio después del login
+      router.push("/home");
+    } else {
+      alert("Credenciales incorrectas");
+    }
+  };
+
   return (
     <div className="bg-gray-200 flex flex-col min-h-screen">
       {/* Navbar con animación */}
@@ -8,44 +26,20 @@ export default function Login() {
         <div className="max-w-screen-xl mx-auto flex items-center justify-between px-8 py-4">
           {/* Logo y Título */}
           <div className="flex items-center gap-4">
-            <Image src="/assets/logo.png" alt="Logo" width={48} height={48} />
+            <img src="/assets/logo.png" alt="Logo" width={48} height={48} />
             <h2 className="text-3xl font-bold text-gray-900">CONTROL DOCUMENTAL</h2>
-          </div>
-
-          {/* Botones */}
-          <div className="flex items-center gap-6">
-            <a
-              href="/admin"
-              className="text-lg font-bold underline text-gray-900 hover:text-gray-700 transition duration-300"
-            >
-              Admin
-            </a>
-            <a
-              href="/login"
-              className="bg-black text-white px-6 py-2 rounded-full hover:bg-gray-800 transition duration-300 active:scale-95"
-            >
-              Iniciar Sesión
-            </a>
           </div>
         </div>
       </nav>
 
-      {/* Contenedor principal con imagen de fondo */}
+      {/* Formulario de Login */}
       <div className="flex-grow flex items-center justify-center relative">
-        {/* Imagen de fondo */}
-        <Image
-          src="/assets/logo_leyenda.png"
-          alt="Fondo"
-          className="absolute inset-0 w-full h-full object-contain opacity-10"
-          width={1000}
-          height={1000}
-        />
-
-        {/* Formulario con animación de entrada */}
+      {/* imagen */}
+       <img src="/assets/logo_leyenda.png" alt="Fondo" className="absolute inset-0 w-full h-full object-contain opacity-10"/> 
         <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-6 relative z-10 animate-slideUp">
           <h2 className="text-xl font-semibold text-center mb-6">Iniciar sesión</h2>
 
-          <form>
+          <form onSubmit={handleSubmit}>
             {/* Campo Usuario */}
             <div className="mb-4">
               <label
@@ -59,6 +53,8 @@ export default function Login() {
                 id="usuario"
                 placeholder="Ingresa tu nombre de usuario"
                 className="w-full mt-1 p-2 border rounded-md text-gray-600 focus:ring focus:ring-gray-300 transition duration-300 hover:shadow-md"
+                value={usuario}
+                onChange={(e) => setUsuario(e.target.value)}
               />
             </div>
 
@@ -75,10 +71,12 @@ export default function Login() {
                 id="password"
                 placeholder="Ingresa tu contraseña"
                 className="w-full mt-1 p-2 border rounded-md text-gray-600 focus:ring focus:ring-gray-300 transition duration-300 hover:shadow-md"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
             </div>
 
-            {/* Botón de enviar con animación */}
+            {/* Botón de entrar */}
             <button
               type="submit"
               className="w-full bg-gray-800 text-white py-2 rounded-md hover:bg-gray-900 transition duration-300 active:scale-95"
