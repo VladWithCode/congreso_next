@@ -17,7 +17,6 @@ const UsuarioSchema = new Schema({
     departamento: {
         type: String,
         required: true,
-        unique: true,
     },
     role: {
         type: String,
