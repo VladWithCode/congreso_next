@@ -1,8 +1,8 @@
 import jwt from "jsonwebtoken"
 
 export default async function middleware(req) {
-    const rawToken = req.headers.get("Authorization")
-    if (!rawToken) {
+    const token = req.cookies.get("ident")
+    if (!token) {
         if (req.method === "GET") {
             return NextResponse.redirect("/login")
         } else {
@@ -15,24 +15,10 @@ export default async function middleware(req) {
         }
     }
 
-    const token = rawToken.split(" ")[1]
-    if (token.length === 0) {
-        if (req.method === "GET") {
-            return NextResponse.redirect("/login")
-        } else {
-            return NextResponse.json({
-                message: "Error de autenticación. Token malformado",
-                error: "Malformed token"
-            }, {
-                status: 401
-            })
-        }
-    }
-
     jwt.verify(
         token,
         process.env.JWT_SECRET,
-        (err, decoded) => {
+        (err, payload) => {
             if (err) {
                 return NextResponse.json({
                     message: "Error de autenticación. Token inválido",
@@ -42,12 +28,14 @@ export default async function middleware(req) {
                 })
             }
 
-            req.cookie.set("role", decoded.role)
-            req.cookie.set("username", decoded.username)
+            req.cookie.set("role", payload.role)
+            req.cookie.set("userId", payload.uid)
         }
     )
     return NextResponse.next()
 }
 
-export const config = {}
+export const config = {
+    matcher: "/api/:path*",
+}
 
