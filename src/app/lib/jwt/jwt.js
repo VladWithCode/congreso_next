@@ -1,6 +1,6 @@
 import { SignJWT, jwtVerify } from "jose"
 
-const secret = process.env.JWT_SECRET
+const secret = new TextEncoder().encode(process.env.JWT_SECRET)
 const alg = "HS256"
 
 export function sign(payload, opts = {}) {
