@@ -12,7 +12,8 @@ const ADMIN_PATHS = [
 
 export async function middleware(req) {
     if (
-        req.nextUrl.pathname === "/api/auth"
+        req.method === "GET"
+        || req.nextUrl.pathname === "/api/auth"
         || req.nextUrl.pathname === "/iniciar-sesion"
     ) {
         return NextResponse.next()
@@ -49,8 +50,7 @@ export async function middleware(req) {
 
     const path = req.nextUrl.pathname
     if (
-        req.method !== "GET"
-        && ADMIN_PATHS.includes(path)
+        ADMIN_PATHS.includes(path)
         && tokenPayload.role !== "admin"
     ) {
         return NextResponse.json({
