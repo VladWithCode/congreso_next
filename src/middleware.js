@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import jwt from "@/app/lib/jwt/jwt"
+import * as jwt from "@/app/lib/jwt/jwt"
 
 const ADMIN_PATHS = [
     "/api/users",
