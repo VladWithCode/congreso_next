@@ -29,6 +29,7 @@ const DocumentSchema = new Schema({
     },
     department: {
         type: Types.ObjectId,
+        ref: "Department",
         required: true,
     },
     section: {
