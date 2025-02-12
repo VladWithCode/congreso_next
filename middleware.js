@@ -32,6 +32,16 @@ export default async function middleware(req) {
         (err, payload) => {
             verifyError = err
             tokenPayload = payload
+
+            if (err) {
+                return NextResponse.json({
+                    message: "Error de autenticación. Token inválido",
+                    error: err
+                }, {
+                    status: 401
+                })
+            }
+
             req.cookie.set("role", payload.role)
             req.cookie.set("userId", payload.uid)
         }
