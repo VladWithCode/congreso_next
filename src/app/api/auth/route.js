@@ -11,7 +11,7 @@ export async function POST(req) {
     const usuario = await User.findOne({ username });
 
     if (!usuario) {
-        return new NextResponse.json(
+        return NextResponse.json(
             {
                 message: "Email no registrado",
                 error: "user not found"
@@ -24,7 +24,7 @@ export async function POST(req) {
     try {
         valid = await bcrypt.compare(password, usuario.password);
     } catch (err) {
-        return new NextResponse.json(
+        return NextResponse.json(
             {
                 message: "Error al comparar la contraseña",
                 error: err
@@ -34,7 +34,7 @@ export async function POST(req) {
     }
 
     if (!valid) {
-        return new NextResponse.json(
+        return NextResponse.json(
             {
                 message: "Contraseña incorrecta",
                 error: "wrong password"
