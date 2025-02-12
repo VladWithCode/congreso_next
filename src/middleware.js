@@ -1,4 +1,5 @@
-import jwt from "jsonwebtoken"
+import { NextResponse } from "next/server"
+import jwt from "@/app/lib/jwt/jwt"
 
 const ADMIN_PATHS = [
     "/api/users",
@@ -9,9 +10,9 @@ const ADMIN_PATHS = [
     "/api/documents/:id",
 ]
 
-export default async function middleware(req) {
-    const token = req.cookies.get("ident")
-    if (!token) {
+export async function middleware(req) {
+    const tokenCookie = req.cookies.get("ident")
+    if (!tokenCookie) {
         if (req.method === "GET") {
             return NextResponse.redirect("/login")
         } else {
@@ -24,29 +25,12 @@ export default async function middleware(req) {
         }
     }
 
-    let verifyError;
     let tokenPayload;
-    jwt.verify(
-        token,
-        process.env.JWT_SECRET,
-        (err, payload) => {
-            verifyError = err
-            tokenPayload = payload
-
-            if (err) {
-                return NextResponse.json({
-                    message: "Error de autenticación. Token inválido",
-                    error: err
-                }, {
-                    status: 401
-                })
-            }
-
-            req.cookie.set("role", payload.role)
-            req.cookie.set("userId", payload.uid)
-        }
-    )
-    if (verifyError) {
+    try {
+        tokenPayload = await jwt.verify(tokenCookie.value)
+        req.cookie.set("role", payload.role)
+        req.cookie.set("userId", payload.uid)
+    } catch (err) {
         return NextResponse.json({
             message: "Error de autenticación. Token inválido",
             error: err
@@ -54,6 +38,7 @@ export default async function middleware(req) {
             status: 401
         })
     }
+
     const path = req.nextUrl.pathname
     if (
         req.method !== "GET"
@@ -74,7 +59,6 @@ export default async function middleware(req) {
 export const config = {
     matcher: [
         "/api/:path*",
-        "/!api/auth/login"
     ],
 }
 
