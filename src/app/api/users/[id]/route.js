@@ -5,7 +5,7 @@ export async function GET(_, { params }) {
     const usuario = await User.findById(id);
 
     if (!usuario) {
-        return new NextResponse.json(
+        return NextResponse.json(
             {
                 message: "Usuario no encontrado",
                 error: "Usuario no encontrado"
@@ -14,7 +14,7 @@ export async function GET(_, { params }) {
         );
     }
 
-    return new NextResponse.json(
+    return NextResponse.json(
         {
             message: "Usuario encontrado",
             usuario
@@ -40,7 +40,7 @@ export async function PUT(req, { params }) {
         try {
             newPass = await bcrypt.hash(password, 10);
         } catch (err) {
-            return new NextResponse.json(
+            return NextResponse.json(
                 {
                     message: "Error al encriptar la contraseña",
                     error: err
@@ -65,14 +65,14 @@ export async function PUT(req, { params }) {
             }
         );
 
-        return new NextResponse.json(
+        return NextResponse.json(
             {
                 message: "Usuario actualizado correctamente",
             },
             { status: 200 }
         );
     } catch (err) {
-        return new NextResponse.json(
+        return NextResponse.json(
             {
                 message: "Error al actualizar el usuario",
                 error: err
