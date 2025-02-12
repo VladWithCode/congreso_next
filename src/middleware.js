@@ -11,6 +11,10 @@ const ADMIN_PATHS = [
 ]
 
 export async function middleware(req) {
+    if (req.nextUrl.pathname === "/api/auth") {
+        return NextResponse.next()
+    }
+
     const tokenCookie = req.cookies.get("ident")
     if (!tokenCookie) {
         if (req.method === "GET") {
@@ -28,9 +32,10 @@ export async function middleware(req) {
     let tokenPayload;
     try {
         tokenPayload = await jwt.verify(tokenCookie.value)
-        req.cookie.set("role", payload.role)
-        req.cookie.set("userId", payload.uid)
+        req.cookies.set("role", tokenPayload.role)
+        req.cookies.set("userId", tokenPayload.uid)
     } catch (err) {
+        console.error(err)
         return NextResponse.json({
             message: "Error de autenticación. Token inválido",
             error: err
