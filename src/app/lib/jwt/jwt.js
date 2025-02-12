@@ -11,9 +11,10 @@ export function sign(payload, opts = {}) {
         .sign(secret)
 }
 
-export function verify(token) {
-    return jwtVerify(token, secret, {
+export async function verify(token) {
+    const { payload } = await jwtVerify(token, secret, {
         algorithms: [alg],
     })
+    return payload
 }
 
