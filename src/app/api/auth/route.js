@@ -1,3 +1,6 @@
+import connectDB from "@/app/db/db";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 import { NextResponse } from "next/server";
 import User from "@/app/api/users/model";
 
@@ -51,15 +54,10 @@ export async function POST(req) {
         process.env.JWT_SECRET
     );
 
-    const res = new NextResponse();
+    const res = new NextResponse(JSON.stringify({ message: "Autenticado correctamente" }), { status: 200 });
     res.cookies.set("ident", token);
-
-    return res.json(
-        {
-            message: "Autenticado correctamente",
-        },
-        { status: 200 }
-    );
+    res.headers.set("Content-Type", "application/json");
+    return res;
 }
 
 export async function DELETE() {
