@@ -46,13 +46,24 @@ export async function POST(req) {
         );
     }
 
-    const token = jwt.sign(
-        {
-            uid: usuario._id,
-            role: usuario.role
-        },
-        process.env.JWT_SECRET
-    );
+    let token;
+    try {
+        token = await jwt.sign(
+            {
+                uid: usuario._id,
+                role: usuario.role
+            },
+            process.env.JWT_SECRET
+        );
+    } catch (err) {
+        return NextResponse.json(
+            {
+                message: "Error al crear el token. Intente de nuevo más tarde",
+                error: err
+            },
+            { status: 500 }
+        );
+    }
 
     const res = new NextResponse(JSON.stringify({ message: "Autenticado correctamente" }), { status: 200 });
     res.cookies.set("ident", token);
