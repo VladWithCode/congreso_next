@@ -52,6 +52,7 @@ export async function POST(req) {
         nombre,
         username,
         departamento,
+        password: hashedPw,
         role,
         email
     });
