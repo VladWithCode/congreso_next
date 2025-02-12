@@ -4,11 +4,11 @@ import User from "@/app/api/users/model";
 export async function POST(req) {
     await connectDB()
     const {
-        email,
+        username,
         password,
     } = await req.json();
 
-    const usuario = await User.findOne({ email });
+    const usuario = await User.findOne({ username });
 
     if (!usuario) {
         return new NextResponse.json(
