@@ -11,7 +11,10 @@ const ADMIN_PATHS = [
 ]
 
 export async function middleware(req) {
-    if (req.nextUrl.pathname === "/api/auth") {
+    if (
+        req.nextUrl.pathname === "/api/auth"
+        || req.nextUrl.pathname === "/iniciar-sesion"
+    ) {
         return NextResponse.next()
     }
 
@@ -64,6 +67,7 @@ export async function middleware(req) {
 export const config = {
     matcher: [
         "/api/:path*",
+        "/:path+",
     ],
 }
 
