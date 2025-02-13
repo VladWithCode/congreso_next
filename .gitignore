@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Tools dir
+tools/
+
+# Uploads
+public/uploads/*
+!public/uploads/.keep

@@ -1,17 +1,20 @@
+import connectDB from "@/app/db/db";
+import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
+import * as jwt from "@/app/lib/jwt/jwt";
 import User from "@/app/api/users/model";
 
 export async function POST(req) {
     await connectDB()
     const {
-        email,
+        username,
         password,
     } = await req.json();
 
-    const usuario = await User.findOne({ email });
+    const usuario = await User.findOne({ username });
 
     if (!usuario) {
-        return new NextResponse.json(
+        return NextResponse.json(
             {
                 message: "Email no registrado",
                 error: "user not found"
@@ -24,7 +27,7 @@ export async function POST(req) {
     try {
         valid = await bcrypt.compare(password, usuario.password);
     } catch (err) {
-        return new NextResponse.json(
+        return NextResponse.json(
             {
                 message: "Error al comparar la contraseña",
                 error: err
@@ -34,7 +37,7 @@ export async function POST(req) {
     }
 
     if (!valid) {
-        return new NextResponse.json(
+        return NextResponse.json(
             {
                 message: "Contraseña incorrecta",
                 error: "wrong password"
@@ -43,23 +46,29 @@ export async function POST(req) {
         );
     }
 
-    const token = jwt.sign(
-        {
-            uid: usuario._id,
-            role: usuario.role
-        },
-        process.env.JWT_SECRET
-    );
+    let token;
+    try {
+        token = await jwt.sign(
+            {
+                uid: usuario._id,
+                role: usuario.role
+            },
+            process.env.JWT_SECRET
+        );
+    } catch (err) {
+        return NextResponse.json(
+            {
+                message: "Error al crear el token. Intente de nuevo más tarde",
+                error: err
+            },
+            { status: 500 }
+        );
+    }
 
-    const res = new NextResponse();
+    const res = new NextResponse(JSON.stringify({ message: "Autenticado correctamente" }), { status: 200 });
     res.cookies.set("ident", token);
-
-    return res.json(
-        {
-            message: "Autenticado correctamente",
-        },
-        { status: 200 }
-    );
+    res.headers.set("Content-Type", "application/json");
+    return res;
 }
 
 export async function DELETE() {

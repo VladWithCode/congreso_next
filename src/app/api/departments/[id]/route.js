@@ -1,5 +1,5 @@
 import connectDB from "@/app/db/db";
-import Department from "./model";
+import Department from "../model";
 
 export async function GET(_, { params }) {
     await connectDB()

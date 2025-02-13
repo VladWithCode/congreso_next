@@ -29,7 +29,7 @@ export async function GET(_, { params }) {
 export async function PUT(req, { params }) {
     await connectDB()
     const [
-        { name, department, section },
+        { name, department, section, key },
         { id },
     ] = await Promise.all([
         req.json(),
@@ -44,6 +44,7 @@ export async function PUT(req, { params }) {
                     name,
                     department,
                     section,
+                    key,
                 }
             }
         );

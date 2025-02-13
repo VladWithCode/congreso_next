@@ -1,3 +1,8 @@
+import bcrypt from "bcryptjs";
+import { NextResponse } from "next/server";
+import connectDB from "@/app/db/db";
+import User from "../model";
+
 export async function GET(_, { params }) {
     await connectDB()
     const { id } = await params;

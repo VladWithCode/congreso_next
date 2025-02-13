@@ -1,3 +1,4 @@
+import { NextResponse } from "next/server";
 import connectDB from "@/app/db/db";
 import Department from "./model";
 

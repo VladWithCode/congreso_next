@@ -36,6 +36,11 @@ const DocumentSchema = new Schema({
         type: Types.ObjectId,
         required: true,
     },
+    key: {
+        type: String,
+        required: true,
+        unique: true,
+    },
     filename: {
         type: String,
         required: true,
