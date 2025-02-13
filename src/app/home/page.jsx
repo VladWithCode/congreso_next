@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "next/link"; // Aquí importas Link
 import Image from "next/image";
 
 export default function Home() {
@@ -17,17 +17,20 @@ export default function Home() {
 
           {/* Botones */}
           <div className="flex items-center gap-6">
+            {/* Botón Admin */}
             <Link
               href="/admin"
               className="text-lg font-bold underline text-gray-900 hover:text-gray-700"
             >
               Admin
             </Link>
+
+            {/* Mostrar solo el botón de 'Documentos' si ya está autenticado */}
             <Link
-              href="/login"
-              className="bg-black text-white px-6 py-2 rounded-full hover:bg-gray-800 transition"
+              href="/documentos"
+              className="text-lg font-bold underline text-gray-900 hover:text-gray-700"
             >
-              Iniciar Sesión
+              Documentos
             </Link>
           </div>
         </div>
@@ -55,10 +58,13 @@ export default function Home() {
           alt="Imagen de leyenda"
         />
       </div>
-      {/* Footer */}
-      <footer className="bg-white text-center py-2 shadow-inner text-gray-600 text-sm mt-14">
-        Copyright © H. Congreso del Estado de Durango
-      </footer>
+
+      {/* Rectángulo blanco para el copyright */}
+      <div className="bg-white w-full py-4 text-center mt-6">
+        <p className="text-gray-900 text-lg font-medium">
+          Copyright © H. Congreso del Estado de Durango
+        </p>
+      </div>
     </div>
   );
 }
