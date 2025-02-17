@@ -15,14 +15,8 @@ export default function Home() {
             </h2>
           </div>
 
-          {/* Botones */}
+          {/* Botón de iniciar sesión */}
           <div className="flex items-center gap-6">
-            <Link
-              href="/admin"
-              className="text-lg font-bold underline text-gray-900 hover:text-gray-700"
-            >
-              Admin
-            </Link>
             <Link
               href="/login"
               className="bg-black text-white px-6 py-2 rounded-full hover:bg-gray-800 transition"

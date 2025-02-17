@@ -1,23 +1,76 @@
-"use client"; // Marca este archivo como componente de cliente
-import { useState } from "react";
-import { useRouter } from "next/navigation"; // Para Next.js con el nuevo sistema de navegación
+"use client";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Login() {
   const [usuario, setUsuario] = useState("");
   const [password, setPassword] = useState("");
-  const router = useRouter(); // Hook de router para hacer la redirección
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
-  const handleSubmit = (e) => {
+  // Verificar si ya está autenticado al cargar
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await fetch("/api/auth", {
+          credentials: "include",
+        });
+        if (response.ok) {
+          router.push("/home");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, [router]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Aquí deberías verificar las credenciales del usuario (por ejemplo, con una API)
-    if (usuario === "admin" && password === "password123") {
-      // Redirigimos al usuario a la página de inicio después del login
-      router.push("/home");
-    } else {
-      alert("Credenciales incorrectas");
+    // Validación del formulario
+    if (!usuario || !password) {
+      alert("Por favor ingresa tu nombre de usuario y contraseña");
+      return;
     }
+
+    setLoading(true);
+
+    try {
+      const response = await fetch("/api/auth", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: usuario,
+          password: password,
+        }),
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        router.push("/home");
+      } else {
+        const data = await response.json();
+        alert(data.message || "Error al iniciar sesión");
+      }
+    } catch (error) {
+      alert("Error al conectar con el servidor");
+      console.error("Error:", error);
+    }
+
+    setLoading(false);
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-gray-200 flex flex-col min-h-screen">
@@ -27,17 +80,25 @@ export default function Login() {
           {/* Logo y Título */}
           <div className="flex items-center gap-4">
             <img src="/assets/logo.png" alt="Logo" width={48} height={48} />
-            <h2 className="text-3xl font-bold text-gray-900">CONTROL DOCUMENTAL</h2>
+            <h2 className="text-3xl font-bold text-gray-900">
+              CONTROL DOCUMENTAL
+            </h2>
           </div>
         </div>
       </nav>
 
       {/* Formulario de Login */}
       <div className="flex-grow flex items-center justify-center relative">
-      {/* imagen */}
-       <img src="/assets/logo_leyenda.png" alt="Fondo" className="absolute inset-0 w-full h-full object-contain opacity-10"/> 
+        {/* Imagen de fondo */}
+        <img
+          src="/assets/logo_leyenda.png"
+          alt="Fondo"
+          className="absolute inset-0 w-full h-full object-contain opacity-10"
+        />
         <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-6 relative z-10 animate-slideUp">
-          <h2 className="text-xl font-semibold text-center mb-6">Iniciar sesión</h2>
+          <h2 className="text-xl font-semibold text-center mb-6">
+            Iniciar sesión
+          </h2>
 
           <form onSubmit={handleSubmit}>
             {/* Campo Usuario */}
@@ -80,8 +141,9 @@ export default function Login() {
             <button
               type="submit"
               className="w-full bg-gray-800 text-white py-2 rounded-md hover:bg-gray-900 transition duration-300 active:scale-95"
+              disabled={loading}
             >
-              Entrar
+              {loading ? "Cargando..." : "Entrar"}
             </button>
           </form>
         </div>
