@@ -1,78 +1,78 @@
-import connectDB from "@/app/db/db";
-import bcrypt from "bcryptjs";
-import { NextResponse } from "next/server";
-import * as jwt from "@/app/lib/jwt/jwt";
-import User from "@/app/api/users/model";
+import connectDB from "@/app/db/db"
+import bcrypt from "bcryptjs"
+import { NextResponse } from "next/server"
+import * as jwt from "@/app/lib/jwt/jwt"
+import User from "@/app/api/users/model"
 
 export async function POST(req) {
-    await connectDB()
-    const {
-        username,
-        password,
-    } = await req.json();
+  await connectDB()
+  const { username, password } = await req.json()
 
-    const usuario = await User.findOne({ username });
+  const usuario = await User.findOne({ username })
 
-    if (!usuario) {
-        return NextResponse.json(
-            {
-                message: "Email no registrado",
-                error: "user not found"
-            },
-            { status: 404 }
-        );
-    }
+  if (!usuario) {
+    return NextResponse.json(
+      {
+        message: "Email no registrado",
+        error: "user not found",
+      },
+      { status: 404 }
+    )
+  }
 
-    let valid;
-    try {
-        valid = await bcrypt.compare(password, usuario.password);
-    } catch (err) {
-        return NextResponse.json(
-            {
-                message: "Error al comparar la contraseña",
-                error: err
-            },
-            { status: 500 }
-        );
-    }
+  let valid
+  try {
+    valid = await bcrypt.compare(password, usuario.password)
+  } catch (err) {
+    return NextResponse.json(
+      {
+        message: "Error al comparar la contraseña",
+        error: err,
+      },
+      { status: 500 }
+    )
+  }
 
-    if (!valid) {
-        return NextResponse.json(
-            {
-                message: "Contraseña incorrecta",
-                error: "wrong password"
-            },
-            { status: 401 }
-        );
-    }
+  if (!valid) {
+    return NextResponse.json(
+      {
+        message: "Contraseña incorrecta",
+        error: "wrong password",
+      },
+      { status: 401 }
+    )
+  }
 
-    let token;
-    try {
-        token = await jwt.sign(
-            {
-                uid: usuario._id,
-                role: usuario.role
-            },
-            process.env.JWT_SECRET
-        );
-    } catch (err) {
-        return NextResponse.json(
-            {
-                message: "Error al crear el token. Intente de nuevo más tarde",
-                error: err
-            },
-            { status: 500 }
-        );
-    }
+  let token
+  try {
+    token = await jwt.sign(
+      {
+        uid: usuario._id,
+        role: usuario.role,
+      },
+      process.env.JWT_SECRET
+    )
+  } catch (err) {
+    return NextResponse.json(
+      {
+        message: "Error al crear el token. Intente de nuevo más tarde",
+        error: err,
+      },
+      { status: 500 }
+    )
+  }
 
-    const res = new NextResponse(JSON.stringify({ message: "Autenticado correctamente" }), { status: 200 });
-    res.cookies.set("ident", token);
-    res.headers.set("Content-Type", "application/json");
-    return res;
+  const res = new NextResponse(
+    JSON.stringify({ message: "Autenticado correctamente" }),
+    { status: 200 }
+  )
+  res.cookies.set("ident", token)
+  res.headers.set("Content-Type", "application/json")
+  return res
 }
 
 export async function DELETE() {
-    const res = new NextResponse();
-    res.cookies.delete("ident");
-    return res.redirect("/", 302);
+  const res = new NextResponse()
+  res.cookies.delete("ident")
+  return res.redirect("/", 302)
 }
