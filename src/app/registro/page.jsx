@@ -82,15 +82,16 @@ export default function RegistroAdmin() {
     const sectionData = { sectionName: newSection };
 
     const res = await fetch(`/api/departments/${departmentId}`, {
-      method: "POST", // Asegúrate de que esté utilizando POST
+      method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(sectionData),
     });
 
     if (res.ok) {
       const data = await res.json();
-      console.log("Respuesta de la API:", data); // Verifica la respuesta
+      console.log("Respuesta de la API:", data);
 
+      // Actualiza solo el departamento correcto
       setDepartments(
         departments.map((dep) =>
           dep._id === departmentId
@@ -104,23 +105,35 @@ export default function RegistroAdmin() {
     }
   };
 
-  // Editar una sección
   const editSection = async (departmentId, sectionId, newSectionName) => {
     try {
-      const res = await fetch(
-        `/api/departments/${departmentId}/${sectionId}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ newSectionName }),
-        }
-      );
+      const res = await fetch(`/api/departments/${departmentId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          sectionId: sectionId,
+          sectionName: newSectionName,
+        }),
+      });
 
       if (res.ok) {
         const data = await res.json();
-        // Actualizar estado o UI con la sección editada
+        // Actualizar el estado local
+        setDepartments(
+          departments.map((dep) => {
+            if (dep._id === departmentId) {
+              return {
+                ...dep,
+                sections: dep.sections.map((sec) =>
+                  sec._id === sectionId ? { ...sec, name: newSectionName } : sec
+                ),
+              };
+            }
+            return dep;
+          })
+        );
       } else {
         console.error("Error al editar la sección");
       }
@@ -129,49 +142,54 @@ export default function RegistroAdmin() {
     }
   };
 
-  // Guardar la edición de una sección
-  const saveEditSection = async () => {
-    if (sectionToEdit.trim() === "") return;
-
-    const department = departments.find(
-      (dep) => dep._id === editingSection.depId
-    );
-    department.sections[editingSection.index] = sectionToEdit;
-    setDepartments([...departments]); // Actualizar el estado para reflejar el cambio
-
-    // Limpiar campos de edición
-    setEditingSection(null);
-    setSectionToEdit("");
-
-    try {
-      await fetch(`/api/departments/${editingSection.depId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sections: department.sections }),
-      });
-    } catch (error) {
-      console.error("Error al editar sección:", error);
-    }
-  };
-
-  // Eliminar sección
   const deleteSection = async (departmentId, sectionId) => {
     try {
-      const res = await fetch(
-        `/api/departments/${departmentId}/${sectionId}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const res = await fetch(`/api/departments/${departmentId}/sections/${sectionId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
       if (res.ok) {
-        const data = await res.json();
-        // Actualizar estado o UI después de eliminar la sección
+        // Actualizar el estado local
+        setDepartments(
+          departments.map((dep) => {
+            if (dep._id === departmentId) {
+              return {
+                ...dep,
+                sections: dep.sections.filter((sec) => sec._id !== sectionId),
+              };
+            }
+            return dep;
+          })
+        );
       } else {
         console.error("Error al eliminar la sección");
       }
     } catch (err) {
       console.error("Error de red:", err);
+    }
+  };
+
+  // También necesitamos modificar la función saveEditSection:
+
+  const saveEditSection = async () => {
+    if (sectionToEdit.trim() === "" || !editingSection) return;
+
+    try {
+      const department = departments.find(
+        (dep) => dep._id === editingSection.depId
+      );
+      const section = department.sections[editingSection.index];
+
+      await editSection(editingSection.depId, section._id, sectionToEdit);
+
+      // Limpiar campos de edición
+      setEditingSection(null);
+      setSectionToEdit("");
+    } catch (error) {
+      console.error("Error al editar sección:", error);
     }
   };
 
@@ -228,7 +246,7 @@ export default function RegistroAdmin() {
         {departments.map((dep) => (
           <div key={dep._id}>
             <div
-              className="flex justify-between items-center bg-gray-200 px-4 py-2 mb-4 rounded-lg"
+              className="flex justify-between items-center bg-gray-200 px-4 py-2 mb-4 rounded-lg cursor-pointer"
               onClick={() => toggleDepartment(dep._id)}
             >
               <h3 className="text-lg font-semibold">{dep.name}</h3>
@@ -247,7 +265,7 @@ export default function RegistroAdmin() {
                   className="w-full px-4 py-2 border border-gray-400 rounded-lg mb-2"
                 />
                 <button
-                  className="bg-green-600 text-white px-4 py-2 rounded-lg"
+                  className="bg-green-600 text-white px-4 py-2 rounded-lg flex items-center gap-2"
                   onClick={() => addSection(dep._id)}
                 >
                   <FaPlus /> Agregar Sección
@@ -257,40 +275,61 @@ export default function RegistroAdmin() {
                 <ul className="mt-4">
                   {dep.sections.map((sec, index) => (
                     <li
-                      key={sec._id || index} // Utiliza sec._id si está disponible, de lo contrario usa el índice
+                      key={sec._id}
                       className="flex justify-between items-center bg-white px-4 py-2 border border-gray-300 rounded-md mb-2"
                     >
                       {editingSection?.depId === dep._id &&
                       editingSection?.index === index ? (
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 w-full">
                           <input
                             type="text"
                             value={sectionToEdit}
                             onChange={(e) => setSectionToEdit(e.target.value)}
-                            className="border border-gray-400 px-2 py-1"
+                            className="flex-1 border border-gray-400 px-2 py-1 rounded"
+                            placeholder={sec.name}
                           />
                           <button
                             onClick={saveEditSection}
-                            className="bg-blue-600 text-white px-2 py-1 rounded-md"
+                            className="bg-blue-600 text-white px-4 py-1 rounded-md hover:bg-blue-700"
                           >
                             Guardar
+                          </button>
+                          <button
+                            onClick={() => {
+                              setEditingSection(null);
+                              setSectionToEdit("");
+                            }}
+                            className="bg-gray-400 text-white px-4 py-1 rounded-md hover:bg-gray-500"
+                          >
+                            Cancelar
                           </button>
                         </div>
                       ) : (
                         <>
-                          <span>{sec.name}</span>
+                          <span className="flex-1">{sec.name}</span>
                           <div className="flex gap-2">
                             <button
-                              onClick={() =>
-                                setEditingSection({ depId: dep._id, index })
-                              }
-                              className="text-blue-600"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingSection({ depId: dep._id, index });
+                                setSectionToEdit(sec.name);
+                              }}
+                              className="text-blue-600 hover:text-blue-800 p-1"
                             >
                               <FaEdit />
                             </button>
                             <button
-                              onClick={() => deleteSection(dep._id, sec._id)}
-                              className="text-red-600"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (
+                                  window.confirm(
+                                    "¿Estás seguro de eliminar esta sección?"
+                                  )
+                                ) {
+                                  deleteSection(dep._id, sec._id);
+                                }
+                              }}
+                              className="text-red-600 hover:text-red-800 p-1"
                             >
                               <FaTrash />
                             </button>

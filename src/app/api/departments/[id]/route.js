@@ -95,40 +95,45 @@ export async function POST(req, { params }) {
 }
 
 export async function PATCH(req, { params }) {
-  await connectDB();
   const { id, sectionId } = params;
   const { newSectionName } = await req.json();
 
   try {
+    await connectDB();
+
     const department = await Department.findById(id);
     if (!department) {
-      return NextResponse.json(
-        {
-          message: "Departamento no encontrado",
-          error: "Departamento no encontrado",
-        },
+      return new Response(
+        JSON.stringify({ message: "Departamento no encontrado" }),
         { status: 404 }
       );
     }
 
-    const section = department.sections.id(sectionId);
+    const section = department.sections.id(sectionId); // Busca la sección dentro del departamento
     if (!section) {
-      return NextResponse.json(
-        { message: "Sección no encontrada", error: "Sección no encontrada" },
+      return new Response(
+        JSON.stringify({ message: "Sección no encontrada" }),
         { status: 404 }
       );
     }
 
+    // Actualiza el nombre de la sección
     section.name = newSectionName;
+
     await department.save();
 
-    return NextResponse.json(
-      { message: "Sección editada correctamente", departamento: department },
+    return new Response(
+      JSON.stringify({
+        message: "Sección editada correctamente",
+        section,
+        departamento: department,
+      }),
       { status: 200 }
     );
-  } catch (err) {
-    return NextResponse.json(
-      { message: "Error al editar la sección", error: err },
+  } catch (error) {
+    console.error("Error al editar la sección:", error);
+    return new Response(
+      JSON.stringify({ message: "Error al editar la sección" }),
       { status: 500 }
     );
   }
