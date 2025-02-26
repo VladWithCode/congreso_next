@@ -1,10 +1,6 @@
 import { Schema, model, models } from "mongoose";
 
 const UsuarioSchema = new Schema({
-    nombre: {
-        type: String,
-        required: true,
-    },
     username: {
         type: String,
         required: true,
@@ -23,13 +19,6 @@ const UsuarioSchema = new Schema({
         enum: ["admin", "user"],
         default: "user",
         required: true,
-    },
-    email: {
-        type: String,
-        required: true,
-        unique: true,
-        lowercase: true,
-        trim: true,
     },
 });
 
