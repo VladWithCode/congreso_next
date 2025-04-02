@@ -53,9 +53,12 @@ export default function Register() {
       if (!res.ok) {
         throw new Error(data.message || "Error al registrar usuario");
       }
-
       alert("Usuario registrado correctamente");
-      router.push("/admin");
+      //Limpia el formulario después del registro
+      setUsername("");
+      setPassword("");
+      setDepartamento("");
+      setRole("user");
     } catch (err) {
       console.error("Error completo:", err); // Log más detallado
       setError(err.message);

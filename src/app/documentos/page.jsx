@@ -1,64 +1,61 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link"; // Importa Link para las rutas
-import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io"; // Iconos de flecha
+import Link from "next/link";
+import { useRouter } from "next/navigation"; // Para redirigir
+import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 
 export default function Documentos() {
   const [departments, setDepartments] = useState([]);
-  const [selectedDepartment, setSelectedDepartment] = useState(null); // Para gestionar el departamento seleccionado
+  const [selectedDepartment, setSelectedDepartment] = useState(null);
+  const router = useRouter(); // Para manejar la navegación
 
-  // Función para obtener los departamentos
-  const fetchDepartments = async () => {
-    const res = await fetch("/api/departments");
-    if (res.ok) {
-      const data = await res.json();
-      setDepartments(data.departamentos); // Asegúrate de que el formato JSON sea correcto
-    }
-  };
-
-  // Cargar departamentos al inicio
+  // Obtener los departamentos y sus secciones
   useEffect(() => {
+    const fetchDepartments = async () => {
+      const res = await fetch("/api/departments");
+      if (res.ok) {
+        const data = await res.json();
+        setDepartments(data.departamentos);
+      }
+    };
     fetchDepartments();
   }, []);
 
-  // Maneja el clic en el nombre del departamento
+  // Manejar la selección de un departamento
   const handleDepartmentClick = (departmentId) => {
-    // Si el departamento ya está abierto, cerrarlo
-    if (selectedDepartment === departmentId) {
-      setSelectedDepartment(null);
-    } else {
-      setSelectedDepartment(departmentId); // Mostrar secciones
-    }
+    setSelectedDepartment(
+      selectedDepartment === departmentId ? null : departmentId
+    );
+  };
+
+  // Navegar a la pantalla de una sección
+  const handleSectionClick = (sectionId) => {
+    router.push(`/documentos/${sectionId}`);
   };
 
   return (
     <div className="bg-gray-200 flex flex-col min-h-screen">
-      {/* Navbar con animación */}
-      <nav className="bg-white shadow-md w-full animate-fadeIn">
+      {/* Navbar */}
+      <nav className="bg-white shadow-md w-full">
         <div className="max-w-screen-xl mx-auto flex items-center justify-between px-8 py-4">
-          {/* Logo y Título */}
           <div className="flex items-center gap-4">
             <img src="/assets/logo.png" alt="Logo" width={48} height={48} />
             <h2 className="text-3xl font-bold text-gray-900">
               CONTROL DOCUMENTAL
             </h2>
           </div>
-          {/* Botones dentro del navbar */}
-          <div className="flex items-center gap-6 z-10">
-            <Link
-              href="/home" // Asegúrate de que la ruta apunte al inicio ("/")
-              className="text-lg font-bold underline text-gray-900 hover:text-gray-700 text-right cursor-pointer"
-            >
-              Salir
-            </Link>
-          </div>
+          <Link
+            href="/home"
+            className="text-lg font-bold underline text-gray-900 hover:text-gray-700"
+          >
+            Salir
+          </Link>
         </div>
       </nav>
 
-      {/* Contenido con fondo gris claro */}
-      <div className="flex-grow bg-gray-200 py-16 flex flex-col items-center justify-center min-h-screen relative">
-        {/* Mostrar departamentos */}
+      {/* Contenido principal */}
+      <div className="flex-grow bg-gray-200 py-16 flex flex-col items-center">
         <ul className="w-full max-w-2xl">
           {departments.map((department) => (
             <li
@@ -70,7 +67,6 @@ export default function Documentos() {
                 className="flex items-center justify-between text-xl font-semibold text-black underline"
               >
                 <span>{department.name}</span>
-                {/* Icono de flecha dependiendo de si está desplegado o no */}
                 {selectedDepartment === department._id ? (
                   <IoIosArrowUp className="text-gray-600" />
                 ) : (
@@ -78,19 +74,18 @@ export default function Documentos() {
                 )}
               </div>
 
-              {/* Si el departamento está seleccionado, mostrar sus secciones */}
+              {/* Mostrar las secciones si el departamento está seleccionado */}
               {selectedDepartment === department._id && (
                 <div className="mt-2 pl-4">
                   {department.sections.length > 0 ? (
-                    department.sections.map((section, index) => (
-                      <Link
-                        key={index}
-                        href={`/section/${section._id}`} // Redirige a la página de la sección
+                    department.sections.map((section) => (
+                      <div
+                        key={section._id}
+                        onClick={() => handleSectionClick(section._id)}
+                        className="p-2 bg-gray-100 rounded mb-1 hover:bg-gray-200 cursor-pointer"
                       >
-                        <div className="p-2 bg-gray-100 rounded mb-1 hover:bg-gray-200 cursor-pointer">
-                          {section.name}
-                        </div>
-                      </Link>
+                        {section.name}
+                      </div>
                     ))
                   ) : (
                     <div className="text-gray-500">

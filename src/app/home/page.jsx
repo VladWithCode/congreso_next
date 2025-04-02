@@ -110,7 +110,7 @@ export default function Home() {
                 </div>
               </>
             )}
-            {role === "usuario" && (
+            {role === "user" && (
               <Link
                 href="/documentos"
                 className="text-lg font-semibold text-gray-900 hover:text-gray-700"
